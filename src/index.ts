@@ -8,9 +8,9 @@ import fs from "fs";
 import path from "path";
 
 import { TOKEN } from './utils/config';
-import Ping from './commands/ping';
 import { BaseCommand } from './utils/BaseCommand';
 import { BaseModal } from './utils/BaseModal';
+import { dbclose, dbconnect } from './database';
 
 const client = new Client({
     intents: []
@@ -67,6 +67,15 @@ console.log('Logging in...');
         }
     }
 
+    await dbconnect();
+
 })().then(() => {
     client.login(TOKEN);
+});
+
+process.on('SIGINT', async () => {
+    console.log('Shutting down...');
+    await dbclose();
+    await client.destroy();
+    process.exit(0);
 });
