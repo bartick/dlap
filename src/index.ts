@@ -63,6 +63,8 @@ console.log('Logging in...');
     for (const file of modalFiles) {
         const modal = await import(`./modals/${file}`);
         if (modal.default?.prototype instanceof BaseModal) {
+            if (modals.find(_modal => _modal.customId === (modal.default?.prototype.customId)))
+                throw new Error(`Duplicate customId found in ${file}`);
             modals.push(new modal.default());
         }
     }
