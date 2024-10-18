@@ -9,7 +9,7 @@
     "register": "node dist/register.js",
     "register:dev": "ts-node src/register.ts"
   },
-  "author": "",
+  "author": "bartick",
   "license": "ISC",
   "description": "",
   "devDependencies": {
