@@ -1,7 +1,9 @@
 import NFT from '../modals/nft';
+import Transfer from '../modals/transfer';
+import CompressedNFT from '../modals/compressed';
 import { BaseCommand } from '../utils/BaseCommand';
 import { BaseModal } from '../utils/BaseModal';
-import { ApplicationCommandType, ChatInputCommandInteraction, ContextMenuCommandBuilder, SlashCommandBuilder } from 'discord.js';
+import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 
 export default class Ping extends BaseCommand {
     constructor() {
@@ -32,8 +34,8 @@ export default class Ping extends BaseCommand {
             [key: string]: BaseModal
         } = {
             'nft': new NFT(),
-            // 'compressed': this.createCompressedNFT,
-            // 'transfer': this.createTransferToken
+            'compressed': new CompressedNFT(),
+            'transfer': new Transfer()
         }
 
         await interaction.showModal(handlerFunctions[blinkType].build());
