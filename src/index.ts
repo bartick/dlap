@@ -13,7 +13,10 @@ import { BaseModal } from './utils/BaseModal';
 import { dbclose, dbconnect } from './database';
 
 const client = new Client({
-    intents: []
+    intents: [
+        'Guilds',
+        'GuildMessages',
+    ],
 });
 
 client.once(Events.ClientReady, (client) => {
