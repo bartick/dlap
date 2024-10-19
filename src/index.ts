@@ -69,7 +69,7 @@ console.log('Logging in...');
         }
     }
 
-    await dbconnect();
+    // await dbconnect();
 
 })().then(() => {
     client.login(TOKEN);
@@ -77,7 +77,7 @@ console.log('Logging in...');
 
 process.on('SIGINT', async () => {
     console.log('Shutting down...');
-    await dbclose();
+    // await dbclose();
     await client.destroy();
     process.exit(0);
 });
