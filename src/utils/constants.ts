@@ -1,0 +1,8 @@
+export const SUPPORTED_TOKENS: {
+    [key: string]: string
+} = {
+    'SOL': '<:SOLANA:1296782278923391047>',
+    'USDC': '<:USDC:1296781564457385984>',
+    'SEND': '<:SEND:1296780204202655766>',
+    'BONK': '<:BONK:1296780632487235624>',
+}
