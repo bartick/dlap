@@ -56,7 +56,7 @@ export default class TransferValue extends BaseModal {
             .setDescription('Please select the token you want to get')
             .addFields(
                 { name: 'Account', value: PublicKeyAccount.toBase58() },
-                { name: 'Amount', value: `${amountNumber}` }
+                { name: 'Amount', value: `${amountNumber}`, inline: true }
             )
             .setColor('Green')
             .setFooter({
@@ -76,11 +76,6 @@ export default class TransferValue extends BaseModal {
                 })
             )
 
-        const image = interaction.fields.getTextInputValue('image');
-        if (image) {
-            embed.setImage(image);
-        }
-
         const message = await interaction.reply({ embeds: [embed], components: [
             new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(dropdown)
         ], fetchReply: true });
@@ -89,48 +84,49 @@ export default class TransferValue extends BaseModal {
 
         // 3WfFiChZ5FzP4ygoPaTWGZL6BMMf8mGaZsEeURd6HpZv
 
-        await message.awaitMessageComponent({ filter, time: 60_000 })
-            .then(async (i) => {
-                console.log("Something happened");
-                if(i.isAnySelectMenu()) {
-                    const token = i.values[0];
-                    embed.addFields({ name: 'Token', value: token });
-                    const confirmButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
-                        new ButtonBuilder()
-                            .setCustomId('confirm')
-                            .setLabel('Confirm')
-                            .setEmoji('✅')
-                            .setStyle(ButtonStyle.Primary)
-                    );
-                    const rejectButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
-                        new ButtonBuilder()
-                            .setCustomId('reject')
-                            .setLabel('Reject')
-                            .setEmoji('❌')
-                            .setStyle(ButtonStyle.Danger)
-                    );
-                    const confirmCheckMessage = await i.update({ embeds:[embed], components: [confirmButton, rejectButton], fetchReply: true });
-
-                    const filter = (i: MessageComponentInteraction) => (i.customId === 'confirm' || i.customId === 'reject') && i.user.id === interaction.user.id;
-
-                    await confirmCheckMessage.awaitMessageComponent({ filter, time: 30_000 })
-                        .then(async (i) => {
-                            if(i.customId === 'confirm') {
-                                await i.update({ content: 'Transaction confirmed', components: [] });
-                            } else {
-                                await i.update({ content: 'Transaction rejected', components: [] });
-                            }
-                        })
-                        .catch(async (error) => {
-                            console.error(error);
-                            await confirmCheckMessage.edit({ content: 'Transaction timed out', components: [] });
-                        });
-
+        await message.awaitMessageComponent({ filter, time: 120_000 })
+            .then(async (selectMenuInteraction) => {
+                if(!selectMenuInteraction.isAnySelectMenu()) {
+                    return;
                 }
+                const token = selectMenuInteraction.values[0];
+                embed.addFields({ name: 'Token', value: token, inline: true });
+                const confirmRejectButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('confirm')
+                        .setLabel('Confirm')
+                        .setEmoji('✅')
+                        .setStyle(ButtonStyle.Primary),
+                    new ButtonBuilder()
+                        .setCustomId('reject')
+                        .setLabel('Reject')
+                        .setEmoji('❌')
+                        .setStyle(ButtonStyle.Secondary)
+                );
+                const confirmCheckMessage = await selectMenuInteraction.update({ embeds:[embed], components: [confirmRejectButton], fetchReply: true });
+
+                const filter = (i: MessageComponentInteraction) => (i.customId === 'confirm' || i.customId === 'reject') && i.user.id === interaction.user.id;
+
+                await confirmCheckMessage.awaitMessageComponent({ filter, time: 30_000 })
+                    .then(async (buttonInteraction) => {
+                        if(buttonInteraction.customId === 'confirm') {
+                            await buttonInteraction.update({ content: 'Transaction confirmed', components: [] });
+                        } else {
+                            await buttonInteraction.update({ content: 'Transaction rejected', components: [] });
+                        }
+                    })
+                    .catch(async (error) => {
+                        console.error(error.message);
+                        confirmRejectButton.components[0].setDisabled(true);
+                        confirmRejectButton.components[1].setDisabled(true);
+                        await confirmCheckMessage.edit({ components: [confirmRejectButton] });
+                    });
+
             })
             .catch(async (error) => {
                 console.error(error);
-                await message.edit({ content: 'Token selection timed out', components: []});
+                dropdown.setDisabled(true);
+                await message.edit({ components: [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(dropdown)]});
             });
     }
 }
