@@ -1,4 +1,5 @@
 import {
+    ActivityType,
     ChatInputCommandInteraction,
     Client,
     Events,
@@ -18,6 +19,10 @@ const client = new Client({
         'Guilds',
         'GuildMessages',
     ],
+    presence: {
+        activities: [{ name: 'with the API', type: ActivityType.Playing }],
+        status: 'online',
+    }
 });
 
 client.once(Events.ClientReady, (client) => {
