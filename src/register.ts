@@ -1,15 +1,11 @@
 import { REST, Routes } from "discord.js";
-import { BOT_ID, TOKEN } from "./utils/config";
+import { CLIENT_ID, TOKEN } from "./utils/config";
 import fs from "fs";
 import path from "path";
+import logger from "./utils/logger";
 
 // Register all the commands with the discord api
 async function register() {
-    // Check if bot id is defined
-    if (!BOT_ID) {
-        throw new Error("BOT_ID is not defined");
-    }
-
     const commands = []; // Create an array to store all the commands
     const commandFiles = fs.readdirSync(path.join(__dirname, "./commands")).filter(file => file.endsWith(".ts")); // Get all commands from the commands folder
 
@@ -22,17 +18,17 @@ async function register() {
     const rest = new REST({ version: "10" }).setToken(TOKEN); // Create a new rest client using version 10 of the discord api
 
     try {
-        console.log("Started refreshing application (/) commands.");
+        logger.info("Started refreshing application (/) commands.");
 
         // Register all the commands with the discord api
         const data = await rest.put(
-			Routes.applicationCommands(BOT_ID),
+			Routes.applicationCommands(CLIENT_ID),
 			{ body: commands },
 		) as Array<unknown>;
 
-        console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+        logger.info(`Successfully reloaded ${data.length} application (/) commands.`);
     } catch (error) {
-        console.error(error);
+        logger.error(error);
     }
 }
 
