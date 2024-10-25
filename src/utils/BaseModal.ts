@@ -1,4 +1,4 @@
-// A base class to create a slash command in discord.js v14
+// A base class to create a modals in discord.js v14
 
 import {
     ModalBuilder,
