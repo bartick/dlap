@@ -3,9 +3,11 @@ import { Dialect, Sequelize } from "sequelize";
 
 configDotenv();
 
+let PORT: number;
 let TOKEN: string;
 let CLIENT_ID: string;
 let CLIENT_SECRET: string;
+let REDIRECT_URL: string;
 let DB_USER: string;
 let DB_NAME: string;
 let DB_PASS: string;
@@ -20,6 +22,9 @@ if (!process.env.NODE_ENV) {
 } else {
     NODE_ENV = process.env.NODE_ENV;
 }
+
+// Check if port is defined
+PORT = parseInt(process.env.PORT || '3000') || 3000;
 
 // Check if token is defined
 if (!process.env.BOT_TOKEN) {
@@ -38,6 +43,12 @@ if (!process.env.CLIENT_SECRET) {
     throw new Error("CLIENT_SECRET is not defined");
 }
 CLIENT_SECRET = process.env.CLIENT_SECRET;
+
+// Check if redirect url is defined
+if (!process.env.REDIRECT_URL) {
+    throw new Error("REDIRECT_URL is not defined");
+}
+REDIRECT_URL = process.env.REDIRECT_URL;
 
 // Check if database user is defined
 if (!process.env.DB_USER) {
@@ -84,9 +95,11 @@ DB_DIALECT = process.env.DB_DIALECT as Dialect;
 
 export {
     NODE_ENV,
+    PORT,
     TOKEN,
     CLIENT_SECRET,
     CLIENT_ID,
+    REDIRECT_URL,
     DB_USER,
     DB_NAME,
     DB_PASS,
