@@ -10,6 +10,7 @@ import {
 
 import * as models from '../models';
 
+// Database connection
 const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
   host: DB_HOST,
   port: DB_PORT,
@@ -23,8 +24,13 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
   },
 });
 
+// Initialize models
 for (const model of Object.values(models)) {
   model(sequelize);
 }
 
 export default sequelize;
+
+export const AccessTokenData = sequelize.models.AccessToken; // Database to store access tokens
+export const PublicData = sequelize.models.PublicData; // Database to store public keys of the user
+export const SecretData = sequelize.models.Secret; // Database to store secret keys of the user
