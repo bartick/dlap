@@ -69,7 +69,15 @@ console.log('Logging in...');
     }
 
     // Connect to the database
-    await sequelize.authenticate().then(() => console.log('Connected to the database')).catch(console.error);
+    await sequelize.authenticate().then(async () => {
+        console.log('Connected to the database');
+
+        // Sync the database
+        await sequelize.sync().then(() => {
+            console.log('Database synced');
+        }).catch(console.error);
+
+    }).catch(console.error);
 
 })().then(() => {
     // Start the bot
