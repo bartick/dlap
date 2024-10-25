@@ -9,6 +9,7 @@ import fs from "fs";
 import path from "path";
 import * as http from "http";``
 
+import sequelize from './database';
 import { TOKEN } from './utils/config';
 import { BaseCommand } from './utils/BaseCommand';
 import app from './rest';
@@ -68,7 +69,7 @@ console.log('Logging in...');
     }
 
     // Connect to the database
-    // await dbconnect();
+    await sequelize.authenticate().then(() => console.log('Connected to the database')).catch(console.error);
 
 })().then(() => {
     // Start the bot
@@ -82,7 +83,7 @@ console.log('Logging in...');
 
 process.on('SIGINT', async () => {
     console.log('Shutting down...');
-    // await dbclose(); // Close the database connection
+    await sequelize.close(); // Close the database connection
     await client.destroy(); // Destroy the discord client
     if(server) server.close(); // Close the rest server
     process.exit(0); // Exit the process
