@@ -1,10 +1,15 @@
 import { REST, Routes } from "discord.js";
-import { BOTID, TOKEN } from "./utils/config";
+import { BOT_ID, TOKEN } from "./utils/config";
 import fs from "fs";
 import path from "path";
 
 // Register all the commands with the discord api
 async function register() {
+    // Check if bot id is defined
+    if (!BOT_ID) {
+        throw new Error("BOT_ID is not defined");
+    }
+
     const commands = []; // Create an array to store all the commands
     const commandFiles = fs.readdirSync(path.join(__dirname, "./commands")).filter(file => file.endsWith(".ts")); // Get all commands from the commands folder
 
@@ -21,7 +26,7 @@ async function register() {
 
         // Register all the commands with the discord api
         const data = await rest.put(
-			Routes.applicationCommands(BOTID),
+			Routes.applicationCommands(BOT_ID),
 			{ body: commands },
 		) as Array<unknown>;
 
