@@ -45,9 +45,10 @@ export function encrypt(
     message: string,
     secretKey: string,
     nonce: string,
-    recipientPublicKey: Uint8Array
+    recipientKey: string
 ) { 
     const keyPair = generateKeyPairFromString(secretKey); // Generate keyPair from secretKey
+    const recipientKeyPair = generateKeyPairFromString(recipientKey) // Generate keyPair from recipientKey
     const nonceUint8Array = generateNonceFromString(nonce); // Generate nonce from nonce string
     const messageUint8Array = naclUtil.decodeUTF8(message); // Convert message to Uint8Array
 
@@ -55,7 +56,7 @@ export function encrypt(
     const encryptedMessage = nacl.box(
         messageUint8Array,
         nonceUint8Array,
-        recipientPublicKey,
+        recipientKeyPair.publicKey,
         keyPair.secretKey
     );
 
@@ -76,10 +77,11 @@ export function decrypt(
     encrypted: string,
     nonce: string,
     secreyKey: string,
-    recipientSecretKey: Uint8Array,
+    recipientKey: string,
 ) {
 
     const keyPair = generateKeyPairFromString(secreyKey); // Generate keyPair from secretKey
+    const recipientKeyPair = generateKeyPairFromString(recipientKey); // Generate keyPair from recipientKey
     const nonceUint8Array = generateNonceFromString(nonce); // Generate nonce from nonce string
     const encryptedUint8Array = naclUtil.decodeBase64(encrypted); // Decode ciphertext from Base64
 
@@ -88,7 +90,7 @@ export function decrypt(
         encryptedUint8Array,
         nonceUint8Array,
         keyPair.publicKey,
-        recipientSecretKey
+        recipientKeyPair.secretKey
     );
 
     // Return the decrypted message as a UTF-8 string, or null if decryption fails
