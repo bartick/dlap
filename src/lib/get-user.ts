@@ -14,7 +14,7 @@ export async function getDiscordUser(token_type: string, access_token: string) {
         const user: any = await userResponseData.body.json();
         return user
     } catch (error) {
-        logger.error(error); // Log the error
+        logger.error(`Error while getting user: ${error}`); // Log the error
         return null; // Return null if there is an error
     }
 }

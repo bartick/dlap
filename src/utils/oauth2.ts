@@ -28,7 +28,7 @@ export async function generateToken(code: string) {
     } catch (error) {
         // NOTE: An unauthorized token will not throw an error
         // tokenResponseData.statusCode will be 401
-        logger.error(error);
+        logger.error(`Error while generating token: ${error}`);
         return;
     }
 }
@@ -56,7 +56,7 @@ export async function refreshToken(refreshToken: string) {
             scope: string,
         }>
     } catch (error) {
-        logger.error(error);
+        logger.error(`Error while refreshing token: ${error}`);
         return;
     }
 }

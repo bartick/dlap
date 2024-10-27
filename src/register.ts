@@ -28,7 +28,7 @@ async function register() {
 
         logger.info(`Successfully reloaded ${data.length} application (/) commands.`);
     } catch (error) {
-        logger.error(error);
+        logger.error(`Failed to register application (/) commands: ${error}`);
     }
 }
 
