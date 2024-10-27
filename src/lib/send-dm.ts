@@ -1,4 +1,4 @@
-import { Client, MessageCreateOptions, MessagePayload } from "discord.js";
+import { MessageCreateOptions, MessagePayload } from "discord.js";
 import client from "../index";
 
 export async function sendDM(userId: string, message: string | MessagePayload | MessageCreateOptions) {
