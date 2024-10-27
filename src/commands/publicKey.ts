@@ -1,8 +1,6 @@
 import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder, SlashCommandOptionsOnlyBuilder, ChatInputCommandInteraction } from "discord.js";
 import { BaseCommand } from "../utils/BaseCommand";
-import { PublicData } from "../database";
-import { InferAttributes, Model } from "sequelize";
-import { PublicDataModel } from "../models";
+import { PublicDataModel } from "../database";
 
 export default class publicKey extends BaseCommand {
     constructor() {
@@ -24,8 +22,7 @@ export default class publicKey extends BaseCommand {
         });
 
         // Get the public key from the database
-        const publicData = await PublicData.findByPk<Model<InferAttributes<PublicDataModel>, InferAttributes<PublicDataModel>>>(interaction.user.id)
-            .then((data) => data?.toJSON());
+        const publicData = await PublicDataModel.findByPk(interaction.user.id);
         if (!publicData) {
             // Show error if the user is not registered
             await interaction.editReply('You have yet to register with the bot to have a public key');

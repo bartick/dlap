@@ -48,7 +48,7 @@ client.on(Events.InteractionCreate, async (interaction: Interaction) => {
         try {
             await command.run(interaction as ChatInputCommandInteraction);
         } catch (error) {
-            logger.error(error);
+            logger.error(`Error while executing command ${command.name}: ${error}`);
             if (interaction.replied) {
                 await interaction.editReply({ content: 'There was an error while executing this command!' });
                 return;
@@ -62,7 +62,7 @@ client.on(Events.InteractionCreate, async (interaction: Interaction) => {
         try {
             await buttonSubmit.run(interaction);
         } catch (error) {
-            logger.error(error);
+            logger.error(`Error while executing button ${buttonSubmit.customId}: ${error}`);
             if (interaction.replied) {
                 await interaction.editReply({ content: 'There was an error while executing this button!' });
                 return;
@@ -76,7 +76,7 @@ client.on(Events.InteractionCreate, async (interaction: Interaction) => {
         try {
             await modalSubmit.run(interaction);
         } catch (error) {
-            logger.error(error);
+            logger.error(`Error while executing modal ${modalSubmit.customId}: ${error}`);
             if (interaction.replied) {
                 await interaction.editReply({ content: 'There was an error while executing this modal!' });
                 return;
@@ -128,7 +128,17 @@ logger.info('Logging in...');
     // Connect to the database
     await sequelize.authenticate().then(async () => {
         logger.info('Connected to the database');
-    }).catch(logger.error);
+
+        // Sync the database
+        await sequelize.sync({ alter: true }).then(() => {
+            logger.info('Database synced');
+        }).catch((error) => {
+            logger.error(`Error while syncing the database: ${error}`);
+        });
+
+    }).catch((error) => {
+        logger.error(`Error while connecting to the database: ${error}`);
+    });
 
 })().then(() => {
     // Start the bot

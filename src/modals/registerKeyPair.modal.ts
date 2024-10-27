@@ -4,9 +4,8 @@ import { ActionRowBuilder, TextInputBuilder } from "@discordjs/builders";
 import logger from "../utils/logger";
 import { createWallet, encrypt, hash } from "../lib";
 import { getDiscordUser } from "../lib/get-user";
-import sequelize, { AccessTokenData, PublicData, SecretData } from "../database";
-import { InferAttributes, Model } from "sequelize";
-import { AccessTokenModel, PublicDataModel } from "../models";
+import { PublicDataModel, AccessTokenModel, SecretModel} from "../database";
+import sequelize from "../database";
 import { refreshToken } from "../utils/oauth2";
 import { saveToken } from "../helpers/saveToken";
 
@@ -41,10 +40,11 @@ export default class RegisterKeyPair extends BaseModal {
             ephemeral: true,
         });
 
-        interaction.message?.delete(); // Delete the message
+        interaction.message?.delete()
+            .catch((err) => logger.error(`${err}`)) // Delete the message
 
         // check if user has already registered
-        const publicData = await PublicData.findByPk<Model<InferAttributes<PublicDataModel>, InferAttributes<PublicDataModel>>>(interaction.user.id);
+        const publicData = await PublicDataModel.findByPk(interaction.user.id);
         if (publicData) {
             // Show error if the user is already registered
             interaction.editReply({
@@ -54,7 +54,7 @@ export default class RegisterKeyPair extends BaseModal {
         }
 
         // Get the access token data from the database
-        const accessTokenData = await AccessTokenData.findByPk<Model<InferAttributes<AccessTokenModel>, InferAttributes<AccessTokenModel>>>(interaction.user.id)
+        const accessTokenData = await AccessTokenModel.findByPk(interaction.user.id)
         if (!accessTokenData) {
             // Show error if the access token is not found
             interaction.editReply({
@@ -63,9 +63,9 @@ export default class RegisterKeyPair extends BaseModal {
             return;
         }
 
-        const access_token = accessTokenData.getDataValue('token'); // Get the access token from the database
-        const token_type = accessTokenData.getDataValue('tokenType'); // Get the token type from the database
-        const refresh_token = accessTokenData.getDataValue('refreshToken'); // Get the refresh token from the database
+        const access_token = accessTokenData.token // Get the access token from the database
+        const token_type = accessTokenData.tokenType // Get the token type from the database
+        const refresh_token = accessTokenData.refreshToken // Get the refresh token from the database
 
         // Get the discord user data from the access token
         let specialDiscordUser = await getDiscordUser(token_type, access_token);
@@ -102,15 +102,16 @@ export default class RegisterKeyPair extends BaseModal {
 
         const transaction = await sequelize.transaction(); // Start a new transaction
         try {
-            await (await PublicData.create({
+
+            await (await sequelize.models[PublicDataModel.name].create({
                 id: specialDiscordUser.id,
                 data: keyPair.publicKey,
-            }, { transaction })).save(); // Save the public key to the database
+            }, {transaction})).save(); // Create a new public data model
 
-            await (await SecretData.create({
+            await (await sequelize.models[SecretModel.name].create({
                 id: hashedId,
                 secret: encryptedPrivateKey,
-            }, { transaction })).save(); // Save the encrypted private key to the database
+            }, {transaction})).save(); // Save the encrypted private key to the database
 
             await transaction.commit(); // Commit the transaction
 
@@ -120,7 +121,7 @@ export default class RegisterKeyPair extends BaseModal {
             });
         } catch (error) {
             await transaction.rollback(); // Rollback the transaction if there is an error
-            logger.error(error); // Log the error
+            logger.error(`${error}`); // Log the error
 
             // Show the error message
             interaction.editReply({

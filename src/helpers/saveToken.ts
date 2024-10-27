@@ -1,9 +1,9 @@
-import sequelize, { AccessTokenData } from "../database";
+import sequelize, { AccessTokenModel } from "../database";
 
 export async function saveToken(id: string, token: string, tokenType: string, refreshToken: string) {
     let transaction = await sequelize.transaction();
     try {
-        await AccessTokenData.upsert({
+        await sequelize.models[AccessTokenModel.name].upsert({
             id: id,
             token: token,
             tokenType: tokenType,
